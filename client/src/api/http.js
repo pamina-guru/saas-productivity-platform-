@@ -15,39 +15,43 @@ export function clearToken() {
 export async function apiFetch(path, options = {}) {
   const token = getToken();
 
-  const headers = {
-    ...(options.headers || {}),
-  };
+  const headers = { ...(options.headers || {}) };
 
-  // If request has body, set JSON header
   if (options.body && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
 
-  // Attach token
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
 
-  const res = await fetch(`${BASE_URL}${path}`, {
-    ...options,
-    headers,
-  });
+  let res;
+  try {
+    res = await fetch(`${BASE_URL}${path}`, { ...options, headers });
+  } catch (e) {
+    // Backend OFF / network issue
+    throw new Error(
+      "Server is not reachable. Is backend running on port 4000?",
+    );
+  }
 
-  // ✅ If token expired or invalid
-  if (res.status === 401 || res.status === 403) {
+  let data = {};
+  try {
+    data = await res.json();
+  } catch {
+    // If backend returned no JSON
+    data = {};
+  }
+
+  // If token is invalid/expired -> clear it so app doesn't get stuck
+  if (res.status === 401) {
     clearToken();
-
-    // redirect to login page
-    window.location.href = "/login";
-
     throw new Error("Session expired. Please login again.");
   }
 
-  const data = await res.json().catch(() => ({}));
-
   if (!res.ok) {
-    const msg = data?.message || data?.error || "Request failed";
+    const msg =
+      data?.message || data?.error || `Request failed (${res.status})`;
     throw new Error(msg);
   }
 

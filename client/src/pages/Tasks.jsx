@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { apiFetch, getToken } from "../api/http";
 import Toast from "../components/Toast";
 import Modal from "../components/Modal";
+import { ui } from "../ui/ui";
 
 function clsx(...arr) {
   return arr.filter(Boolean).join(" ");
@@ -181,275 +182,261 @@ export default function Tasks() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const chipBase =
-    "inline-flex items-center gap-2 rounded-full border border-white/10 bg-white/[0.03] px-3 py-1 text-xs font-medium text-white/70";
-  const card =
-    "rounded-2xl border border-white/10 bg-white/[0.03] shadow-[0_20px_60px_rgba(0,0,0,0.55)]";
-  const input =
-    "w-full rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 text-[13px] text-white/90 outline-none placeholder:text-white/35 focus:border-purple-500/60 focus:ring-4 focus:ring-purple-500/10";
-  const btn =
-    "rounded-xl border border-white/10 bg-white/[0.04] px-3.5 py-2 text-[13px] font-semibold text-white/85 hover:bg-white/[0.08] transition";
-  const btnPrimary =
-    "rounded-xl bg-purple-600 px-3.5 py-2 text-[13px] font-semibold text-white hover:bg-purple-500 transition shadow-[0_18px_40px_rgba(124,58,237,0.25)]";
-  const btnDanger =
-    "rounded-xl border border-red-500/25 bg-red-500/10 px-3.5 py-2 text-[13px] font-semibold text-white/85 hover:bg-red-500/15 transition";
-
-  // ✅ Custom dark select (no broken arrow)
-  const selectBase =
-    "w-full appearance-none rounded-xl border border-white/10 bg-black/40 px-3.5 py-2.5 pr-10 text-[13px] text-white/90 outline-none focus:border-purple-500/60 focus:ring-4 focus:ring-purple-500/10";
-
   return (
-    <div className="font-sans space-y-5">
+    <div className={ui.page}>
       <Toast toast={toast} clearToast={clearToast} />
 
-      {/* Header */}
-      <div className={clsx(card, "p-6")}>
-        <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
-          <div>
-            <div className="text-[34px] font-extrabold tracking-tight leading-[1.05]">
-              Tasks
+      {/* Header (same style as Dashboard should use) */}
+      <div className={ui.pageHeaderCard}>
+        <div className={ui.pageHeaderInner}>
+          <div className="flex flex-col gap-4 md:flex-row md:items-start md:justify-between">
+            <div>
+              <div className={ui.h1}>Tasks</div>
+              <div className={ui.sub}>
+                A clean task space — like a Notion database, but faster.
+              </div>
             </div>
-            <div className="mt-1 text-sm text-white/55">
-              A clean task space — like a Notion database, but faster.
-            </div>
-          </div>
 
-          <div className="flex flex-wrap items-center justify-end gap-2">
-            <span className={chipBase}>Total: {stats.total}</span>
-            <span className={chipBase}>Open: {stats.open}</span>
-            <span className={chipBase}>Done: {stats.done}</span>
-            <button className={btnPrimary} onClick={loadTasks} type="button">
-              Refresh
-            </button>
+            <div className="flex flex-wrap items-center justify-end gap-2">
+              <span className={ui.chip}>Total: {stats.total}</span>
+              <span className={ui.chip}>Open: {stats.open}</span>
+              <span className={ui.chip}>Done: {stats.done}</span>
+              <button
+                className={ui.btnPrimary}
+                onClick={loadTasks}
+                type="button"
+              >
+                Refresh
+              </button>
+            </div>
           </div>
         </div>
       </div>
 
       {/* Main */}
-      <div className={clsx(card, "p-6")}>
-        <div className="grid gap-5 lg:grid-cols-[420px_1fr]">
-          {/* Create */}
-          <div className={clsx(card, "p-5")}>
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-bold text-white/85">New task</div>
-              <span className={chipBase}>Quick add</span>
-            </div>
-
-            <form onSubmit={createTask} className="mt-4 space-y-3">
-              <input
-                className={input}
-                placeholder="Title"
-                value={title}
-                onChange={(e) => setTitle(e.target.value)}
-              />
-
-              <textarea
-                className={clsx(input, "min-h-[110px] resize-none")}
-                placeholder="Description (optional)"
-                value={description}
-                onChange={(e) => setDescription(e.target.value)}
-              />
-
-              <div className="flex gap-2">
-                <button className={clsx(btnPrimary, "flex-1")} type="submit">
-                  Add task
-                </button>
-                <button
-                  type="button"
-                  className={btn}
-                  onClick={() => {
-                    setTitle("");
-                    setDescription("");
-                  }}
-                >
-                  Clear
-                </button>
+      <div className={ui.card}>
+        <div className={ui.cardPad}>
+          <div className="grid gap-5 lg:grid-cols-[420px_1fr]">
+            {/* Create */}
+            <div className={clsx(ui.card, ui.cardPadSm)}>
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-bold text-white/85">New task</div>
+                <span className={ui.chip}>Quick add</span>
               </div>
 
-              <div className="pt-1 text-xs text-white/40">
-                Tip: keep titles short, descriptions can be long.
-              </div>
-            </form>
-          </div>
+              <form onSubmit={createTask} className="mt-4 space-y-3">
+                <input
+                  className={ui.input}
+                  placeholder="Title"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                />
 
-          {/* Database */}
-          <div className={clsx(card, "p-5 min-w-0")}>
-            <div className="flex items-center justify-between">
-              <div className="text-sm font-bold text-white/85">Database</div>
-              <span className={chipBase}>
-                {loading ? "Syncing…" : "Synced"}
-              </span>
-            </div>
+                <textarea
+                  className={clsx(ui.input, "min-h-[110px] resize-none")}
+                  placeholder="Description (optional)"
+                  value={description}
+                  onChange={(e) => setDescription(e.target.value)}
+                />
 
-            {/* Controls */}
-            <div className="mt-4 grid gap-3">
-              <input
-                className={input}
-                placeholder="Search tasks…"
-                value={query}
-                onChange={(e) => setQuery(e.target.value)}
-              />
-
-              <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
-                <div className="flex flex-wrap gap-2">
-                  {[
-                    { key: "all", label: "All" },
-                    { key: "open", label: "Open" },
-                    { key: "done", label: "Completed" },
-                  ].map((x) => (
-                    <button
-                      key={x.key}
-                      type="button"
-                      onClick={() => setFilter(x.key)}
-                      className={clsx(
-                        chipBase,
-                        "hover:bg-white/[0.06] transition",
-                        filter === x.key &&
-                          "border-purple-500/40 bg-purple-500/15 text-white",
-                      )}
-                    >
-                      {x.label}
-                    </button>
-                  ))}
-                </div>
-
-                {/* ✅ Custom arrow select */}
-                <div className="relative md:w-56">
-                  <select
-                    className={selectBase}
-                    value={sort}
-                    onChange={(e) => setSort(e.target.value)}
-                    aria-label="Sort tasks"
+                <div className="flex gap-2">
+                  <button
+                    className={clsx(ui.btnPrimary, "flex-1")}
+                    type="submit"
                   >
-                    <option value="newest">Newest</option>
-                    <option value="oldest">Oldest</option>
-                    <option value="az">A–Z</option>
-                  </select>
-
-                  <span
-                    className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-70"
-                    aria-hidden="true"
+                    Add task
+                  </button>
+                  <button
+                    type="button"
+                    className={ui.btn}
+                    onClick={() => {
+                      setTitle("");
+                      setDescription("");
+                    }}
                   >
-                    <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
-                      <path
-                        d="M6 8l4 4 4-4"
-                        stroke="rgba(255,255,255,0.85)"
-                        strokeWidth="1.8"
-                        strokeLinecap="round"
-                        strokeLinejoin="round"
-                      />
-                    </svg>
-                  </span>
+                    Clear
+                  </button>
                 </div>
-              </div>
+
+                <div className="pt-1 text-xs text-white/40">
+                  Tip: keep titles short, descriptions can be long.
+                </div>
+              </form>
             </div>
 
-            {/* ✅ FIX: no grid breaking — scroll horizontally when needed */}
-            <div className="mt-5 overflow-x-auto">
-              <div className="min-w-[820px] rounded-xl border border-white/10 overflow-hidden">
-                {/* Header row */}
-                <div className="grid grid-cols-[44px_2fr_3fr_220px] bg-white/[0.03] text-xs text-white/55">
-                  <div className="px-3 py-2 border-r border-white/10"> </div>
-                  <div className="px-3 py-2 border-r border-white/10 font-semibold">
-                    Title
-                  </div>
-                  <div className="px-3 py-2 border-r border-white/10 font-semibold">
-                    Description
-                  </div>
-                  <div className="px-3 py-2 font-semibold">Actions</div>
-                </div>
+            {/* Database */}
+            <div className={clsx(ui.card, ui.cardPadSm, "min-w-0")}>
+              <div className="flex items-center justify-between">
+                <div className="text-sm font-bold text-white/85">Database</div>
+                <span className={ui.chip}>
+                  {loading ? "Syncing…" : "Synced"}
+                </span>
+              </div>
 
-                {/* Rows */}
-                {loading ? (
-                  <div className="p-4 space-y-3">
-                    <div className="h-11 rounded-lg border border-white/10 bg-white/5 animate-pulse" />
-                    <div className="h-11 rounded-lg border border-white/10 bg-white/5 animate-pulse" />
-                    <div className="h-11 rounded-lg border border-white/10 bg-white/5 animate-pulse" />
-                  </div>
-                ) : visibleTasks.length === 0 ? (
-                  <div className="p-5 text-sm text-white/50">
-                    No tasks yet. Add one on the left.
-                  </div>
-                ) : (
-                  <div>
-                    {visibleTasks.map((t) => (
-                      <div
-                        key={t.id}
+              {/* Controls */}
+              <div className="mt-4 grid gap-3">
+                <input
+                  className={ui.input}
+                  placeholder="Search tasks…"
+                  value={query}
+                  onChange={(e) => setQuery(e.target.value)}
+                />
+
+                <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                  <div className="flex flex-wrap gap-2">
+                    {[
+                      { key: "all", label: "All" },
+                      { key: "open", label: "Open" },
+                      { key: "done", label: "Completed" },
+                    ].map((x) => (
+                      <button
+                        key={x.key}
+                        type="button"
+                        onClick={() => setFilter(x.key)}
                         className={clsx(
-                          "group grid min-w-0 grid-cols-[44px_2fr_3fr_220px] border-t border-white/10",
-                          "hover:bg-white/[0.04] transition",
+                          ui.chip,
+                          "hover:bg-white/[0.06] transition",
+                          filter === x.key &&
+                            "border-purple-500/40 bg-purple-500/15 text-white",
                         )}
                       >
-                        {/* Checkbox */}
-                        <div className="px-3 py-3 flex items-start justify-center">
-                          <button
-                            type="button"
-                            onClick={() => toggleComplete(t)}
-                            className={clsx(
-                              "mt-[2px] h-5 w-5 rounded-md border",
-                              t.isCompleted
-                                ? "border-purple-500/40 bg-purple-600/80"
-                                : "border-white/15 bg-black/30 hover:border-purple-500/40",
-                            )}
-                            aria-label="Toggle complete"
-                          />
-                        </div>
-
-                        {/* Title */}
-                        <div className="px-3 py-3 min-w-0">
-                          <div
-                            className={clsx(
-                              "text-[13px] font-semibold text-white/90 leading-5 truncate",
-                              t.isCompleted && "line-through text-white/50",
-                            )}
-                            title={t.title}
-                          >
-                            {t.title}
-                          </div>
-                        </div>
-
-                        {/* Description */}
-                        <div className="px-3 py-3 min-w-0">
-                          <div className="text-[13px] text-white/55 leading-5 break-words">
-                            {t.description || (
-                              <span className="text-white/30">—</span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Actions */}
-                        <div className="px-3 py-3 flex items-start justify-end gap-2 opacity-0 group-hover:opacity-100 transition">
-                          <button
-                            className={btn}
-                            onClick={() => openEdit(t)}
-                            type="button"
-                          >
-                            Edit
-                          </button>
-                          <button
-                            className={btn}
-                            onClick={() => toggleComplete(t)}
-                            type="button"
-                          >
-                            {t.isCompleted ? "Undo" : "Complete"}
-                          </button>
-                          <button
-                            className={btnDanger}
-                            onClick={() => removeTask(t.id)}
-                            type="button"
-                          >
-                            Delete
-                          </button>
-                        </div>
-                      </div>
+                        {x.label}
+                      </button>
                     ))}
                   </div>
-                )}
-              </div>
-            </div>
 
-            <div className="mt-3 text-xs text-white/35">
-              Tip: hover a row to see actions (Notion-style).
+                  {/* Custom select */}
+                  <div className="relative md:w-56">
+                    <select
+                      className={ui.select}
+                      value={sort}
+                      onChange={(e) => setSort(e.target.value)}
+                      aria-label="Sort tasks"
+                    >
+                      <option value="newest">Newest</option>
+                      <option value="oldest">Oldest</option>
+                      <option value="az">A–Z</option>
+                    </select>
+
+                    <span
+                      className="pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 opacity-70"
+                      aria-hidden="true"
+                    >
+                      <svg viewBox="0 0 20 20" fill="none" className="h-4 w-4">
+                        <path
+                          d="M6 8l4 4 4-4"
+                          stroke="rgba(255,255,255,0.85)"
+                          strokeWidth="1.8"
+                          strokeLinecap="round"
+                          strokeLinejoin="round"
+                        />
+                      </svg>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Table */}
+              <div className="mt-5 overflow-x-auto">
+                <div className="min-w-[820px] overflow-hidden rounded-xl border border-white/10">
+                  <div className="grid grid-cols-[44px_2fr_3fr_220px] bg-white/[0.03] text-xs text-white/55">
+                    <div className="px-3 py-2 border-r border-white/10" />
+                    <div className="px-3 py-2 border-r border-white/10 font-semibold">
+                      Title
+                    </div>
+                    <div className="px-3 py-2 border-r border-white/10 font-semibold">
+                      Description
+                    </div>
+                    <div className="px-3 py-2 font-semibold">Actions</div>
+                  </div>
+
+                  {loading ? (
+                    <div className="p-4 space-y-3">
+                      <div className="h-11 rounded-lg border border-white/10 bg-white/5 animate-pulse" />
+                      <div className="h-11 rounded-lg border border-white/10 bg-white/5 animate-pulse" />
+                      <div className="h-11 rounded-lg border border-white/10 bg-white/5 animate-pulse" />
+                    </div>
+                  ) : visibleTasks.length === 0 ? (
+                    <div className="p-5 text-sm text-white/50">
+                      No tasks yet. Add one on the left.
+                    </div>
+                  ) : (
+                    <div>
+                      {visibleTasks.map((t) => (
+                        <div
+                          key={t.id}
+                          className={clsx(
+                            "group grid min-w-0 grid-cols-[44px_2fr_3fr_220px] border-t border-white/10",
+                            "hover:bg-white/[0.04] transition",
+                          )}
+                        >
+                          <div className="px-3 py-3 flex items-start justify-center">
+                            <button
+                              type="button"
+                              onClick={() => toggleComplete(t)}
+                              className={clsx(
+                                "mt-[2px] h-5 w-5 rounded-md border",
+                                t.isCompleted
+                                  ? "border-purple-500/40 bg-purple-600/80"
+                                  : "border-white/15 bg-black/30 hover:border-purple-500/40",
+                              )}
+                              aria-label="Toggle complete"
+                            />
+                          </div>
+
+                          <div className="px-3 py-3 min-w-0">
+                            <div
+                              className={clsx(
+                                "text-[13px] font-semibold text-white/90 leading-5 truncate",
+                                t.isCompleted && "line-through text-white/50",
+                              )}
+                              title={t.title}
+                            >
+                              {t.title}
+                            </div>
+                          </div>
+
+                          <div className="px-3 py-3 min-w-0">
+                            <div className="text-[13px] text-white/55 leading-5 break-words">
+                              {t.description || (
+                                <span className="text-white/30">—</span>
+                              )}
+                            </div>
+                          </div>
+
+                          <div className="px-3 py-3 flex items-start justify-end gap-2 opacity-0 group-hover:opacity-100 transition">
+                            <button
+                              className={ui.btn}
+                              onClick={() => openEdit(t)}
+                              type="button"
+                            >
+                              Edit
+                            </button>
+                            <button
+                              className={ui.btn}
+                              onClick={() => toggleComplete(t)}
+                              type="button"
+                            >
+                              {t.isCompleted ? "Undo" : "Complete"}
+                            </button>
+                            <button
+                              className={ui.btnDanger}
+                              onClick={() => removeTask(t.id)}
+                              type="button"
+                            >
+                              Delete
+                            </button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              <div className="mt-3 text-xs text-white/35">
+                Tip: hover a row to see actions (Notion-style).
+              </div>
             </div>
           </div>
         </div>
@@ -459,13 +446,13 @@ export default function Tasks() {
       <Modal open={editOpen} title="Edit task" onClose={closeEdit}>
         <form onSubmit={saveEdit} className="grid gap-3">
           <input
-            className={input}
+            className={ui.input}
             placeholder="Title"
             value={editTitle}
             onChange={(e) => setEditTitle(e.target.value)}
           />
           <textarea
-            className={clsx(input, "min-h-[110px] resize-none")}
+            className={clsx(ui.input, "min-h-[110px] resize-none")}
             placeholder="Description"
             value={editDescription}
             onChange={(e) => setEditDescription(e.target.value)}
@@ -473,14 +460,18 @@ export default function Tasks() {
 
           <div className="flex justify-end gap-2 pt-1">
             <button
-              className={btn}
+              className={ui.btn}
               type="button"
               onClick={closeEdit}
               disabled={savingEdit}
             >
               Cancel
             </button>
-            <button className={btnPrimary} type="submit" disabled={savingEdit}>
+            <button
+              className={ui.btnPrimary}
+              type="submit"
+              disabled={savingEdit}
+            >
               {savingEdit ? "Saving…" : "Save"}
             </button>
           </div>
