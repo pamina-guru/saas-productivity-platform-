@@ -19,11 +19,12 @@ export async function apiFetch(path, options = {}) {
     ...(options.headers || {}),
   };
 
-  // If body exists, we assume JSON unless user provided otherwise
+  // If request has body, set JSON header
   if (options.body && !headers["Content-Type"]) {
     headers["Content-Type"] = "application/json";
   }
 
+  // Attach token
   if (token) {
     headers.Authorization = `Bearer ${token}`;
   }
@@ -32,6 +33,16 @@ export async function apiFetch(path, options = {}) {
     ...options,
     headers,
   });
+
+  // ✅ If token expired or invalid
+  if (res.status === 401 || res.status === 403) {
+    clearToken();
+
+    // redirect to login page
+    window.location.href = "/login";
+
+    throw new Error("Session expired. Please login again.");
+  }
 
   const data = await res.json().catch(() => ({}));
 
